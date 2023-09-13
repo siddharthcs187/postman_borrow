@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "361396117618",
+    "project_id": "postmanborrow",
+    "storage_bucket": "postmanborrow.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:361396117618:android:68d5d467e0cff1d03a22eb",
+        "android_client_info": {
+          "package_name": "com.example.postman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "361396117618-35dbf33gstbf7v7iqorgur4ljqv6mq7c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzkVLL77is2Gvamb-bLPZyEOpkn3_OaF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "361396117618-35dbf33gstbf7v7iqorgur4ljqv6mq7c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
