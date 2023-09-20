@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../Chat System/chat_page.dart';
 
 class BorrowRequestCard extends StatefulWidget {
   final String imageUrl;
@@ -7,6 +11,7 @@ class BorrowRequestCard extends StatefulWidget {
   final String title;
   final String body;
   final String profilePicUrl;
+  final String userId;
 
   BorrowRequestCard({
     Key? key,
@@ -15,6 +20,7 @@ class BorrowRequestCard extends StatefulWidget {
     required this.title,
     required this.body,
     required this.profilePicUrl,
+    required this.userId,
   }) : super(key: key);
 
   @override
@@ -22,8 +28,64 @@ class BorrowRequestCard extends StatefulWidget {
 }
 
 class _BorrowRequestCardState extends State<BorrowRequestCard> {
-  bool isSaved = false; // Track save button state
-  bool showFullText = false; // Track whether to show full text
+  bool isSaved = false;
+  bool showFullText = false;
+  final user = FirebaseAuth.instance.currentUser!;
+
+  void _handleSendButtonPress() async {
+    String currentUserId = user.uid;
+    String receiverUserId = widget.userId;
+
+    bool roomExists = await checkIfRoomExists(currentUserId, receiverUserId);
+
+    if (!roomExists && (currentUserId != receiverUserId)) {
+      await createRoom(currentUserId, receiverUserId);
+    }
+
+    if (currentUserId != receiverUserId) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatPage(
+            senderUserId: currentUserId,
+            receiverUserId: receiverUserId,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<bool> checkIfRoomExists(String userId1, String userId2) async {
+    CollectionReference rooms = FirebaseFirestore.instance.collection('Rooms');
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot1 = await rooms
+        .where('user1', isEqualTo: userId1)
+        .where('user2', isEqualTo: userId2)
+        .get() as QuerySnapshot<Map<String, dynamic>>;
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot2 = await rooms
+        .where('user1', isEqualTo: userId2)
+        .where('user2', isEqualTo: userId1)
+        .get() as QuerySnapshot<Map<String, dynamic>>;
+
+    return querySnapshot1.docs.isNotEmpty || querySnapshot2.docs.isNotEmpty;
+  }
+
+  Future<void> createRoom(String currentUserId, String receiverUserId) async {
+    try {
+      CollectionReference rooms =
+          FirebaseFirestore.instance.collection('Rooms');
+
+      await rooms.add({
+        'user1': currentUserId,
+        'user2': receiverUserId,
+      });
+
+      print('Room created for $currentUserId and $receiverUserId');
+    } catch (error) {
+      print('Error creating room: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,11 +106,11 @@ class _BorrowRequestCardState extends State<BorrowRequestCard> {
                   backgroundImage: NetworkImage(widget.profilePicUrl),
                 ),
               ),
-              const SizedBox(width: 8.0), Text(
-                  widget.username,
-                  style: GoogleFonts.poppins(color: Colors.white),
-                ),
-
+              const SizedBox(width: 8.0),
+              Text(
+                widget.username,
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
             ],
           ),
           Stack(
@@ -56,8 +118,8 @@ class _BorrowRequestCardState extends State<BorrowRequestCard> {
               Image.network(
                 widget.imageUrl,
                 fit: BoxFit.cover,
-                height: 150, // Set the height of the image
-                width: double.infinity, // Use full width
+                height: 150,
+                width: double.infinity,
               ),
               Positioned(
                 top: 16.0,
@@ -65,51 +127,44 @@ class _BorrowRequestCardState extends State<BorrowRequestCard> {
                 right: 16.0,
                 child: Container(
                   padding: const EdgeInsets.all(8.0),
-                  color: Colors.transparent, // Add a background color
+                  color: Colors.transparent,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row( // Added a row to contain the title and "<Required" text
+                      Row(
                         children: [
-                          Expanded( // Ensure the title takes available space
+                          Expanded(
                             child: Text(
                               widget.title,
                               style: GoogleFonts.poppins(
-                                  color: Colors.white, fontWeight: FontWeight.bold),
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Text(
-                            '<Required',
-                            style: GoogleFonts.poppins(
-                              color: Color(0xFF5AF5FF),
-                              fontWeight: FontWeight.w400
-                            )
-                          ),
+                          Text('<Required',
+                              style: GoogleFonts.poppins(
+                                  color: Color(0xFF5AF5FF),
+                                  fontWeight: FontWeight.w400)),
                         ],
                       ),
                       const SizedBox(height: 8.0),
-                      // Show full text if showFullText is true
                       Text(
                         widget.body,
-                        maxLines: showFullText ? null : 2, // Display all lines if showFullText is true
-                        overflow: showFullText ? null : TextOverflow.ellipsis, // Use ellipsis if not showing full text
+                        maxLines: showFullText ? null : 2,
+                        overflow: showFullText ? null : TextOverflow.ellipsis,
                         style: GoogleFonts.poppins(
                             color: Colors.white, fontWeight: FontWeight.w400),
                       ),
-                      // Toggle visibility of text when "Read More" is pressed
                       TextButton(
                         onPressed: () {
                           setState(() {
                             showFullText = !showFullText;
                           });
                         },
-                        child: Text(
-                          showFullText ? 'Read Less' : 'Read More',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w400
-                          )
-                        ),
+                        child: Text(showFullText ? 'Read Less' : 'Read More',
+                            style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w400)),
                       ),
                     ],
                   ),
@@ -126,18 +181,18 @@ class _BorrowRequestCardState extends State<BorrowRequestCard> {
                 ),
                 onPressed: () {
                   setState(() {
-                    isSaved = !isSaved; // Toggle save button state
+                    isSaved = !isSaved;
                   });
                 },
               ),
-              Spacer(), // Add a spacer to push the Send button to the right
+              Spacer(),
               IconButton(
                 icon: Icon(
                   Icons.send,
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  // Handle Send button press here
+                  _handleSendButtonPress();
                 },
               ),
             ],

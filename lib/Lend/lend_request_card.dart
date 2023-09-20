@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../Chat System/chat_page.dart';
 
 class LendRequestCard extends StatefulWidget {
   final String imageUrl;
@@ -8,6 +12,7 @@ class LendRequestCard extends StatefulWidget {
   final String body;
   final String profilePicUrl;
   final String rentOrSell;
+  final String userId;
 
   LendRequestCard({
     Key? key,
@@ -17,6 +22,7 @@ class LendRequestCard extends StatefulWidget {
     required this.body,
     required this.profilePicUrl,
     required this.rentOrSell,
+    required this.userId,
   }) : super(key: key);
 
   @override
@@ -24,8 +30,66 @@ class LendRequestCard extends StatefulWidget {
 }
 
 class _LendRequestCardState extends State<LendRequestCard> {
-  bool isSaved = false; // Track save button state
-  bool showFullText = false; // Track whether to show full text
+  bool isSaved = false;
+  bool showFullText = false;
+  final user = FirebaseAuth.instance.currentUser!;
+
+  void _handleSendButtonPress() async {
+    String currentUserId = user.uid;
+    String receiverUserId = widget.userId;
+
+    bool roomExists = await checkIfRoomExists(currentUserId, receiverUserId);
+
+    if (!roomExists && (currentUserId != receiverUserId)) {
+      await createRoom(currentUserId, receiverUserId);
+    }
+
+    // Navigate to the chat screen
+    if (currentUserId != receiverUserId) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatPage(
+            senderUserId: currentUserId,
+            receiverUserId: receiverUserId,
+          ),
+        ),
+      );
+
+    }
+  }
+
+  Future<bool> checkIfRoomExists(String userId1, String userId2) async {
+    CollectionReference rooms = FirebaseFirestore.instance.collection('Rooms');
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot1 = await rooms
+        .where('user1', isEqualTo: userId1)
+        .where('user2', isEqualTo: userId2)
+        .get() as QuerySnapshot<Map<String, dynamic>>;
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot2 = await rooms
+        .where('user1', isEqualTo: userId2)
+        .where('user2', isEqualTo: userId1)
+        .get() as QuerySnapshot<Map<String, dynamic>>;
+
+    return querySnapshot1.docs.isNotEmpty || querySnapshot2.docs.isNotEmpty;
+  }
+
+  Future<void> createRoom(String currentUserId, String receiverUserId) async {
+    try {
+      CollectionReference rooms =
+          FirebaseFirestore.instance.collection('Rooms');
+
+      await rooms.add({
+        'user1': currentUserId,
+        'user2': receiverUserId,
+      });
+
+      print('Room created for $currentUserId and $receiverUserId');
+    } catch (error) {
+      print('Error creating room: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +110,11 @@ class _LendRequestCardState extends State<LendRequestCard> {
                   backgroundImage: NetworkImage(widget.profilePicUrl),
                 ),
               ),
-              const SizedBox(width: 8.0), Text(
+              const SizedBox(width: 8.0),
+              Text(
                 widget.username,
                 style: GoogleFonts.poppins(color: Colors.white),
               ),
-
             ],
           ),
           Container(
@@ -68,7 +132,6 @@ class _LendRequestCardState extends State<LendRequestCard> {
                     width: double.infinity,
                   ),
                 ),
-                // Title, body, and other elements on the right
                 Expanded(
                   flex: 7, // Occupy 62.5% of the width
                   child: Container(
@@ -128,7 +191,6 @@ class _LendRequestCardState extends State<LendRequestCard> {
               ],
             ),
           ),
-
           Row(
             children: [
               IconButton(
@@ -142,14 +204,14 @@ class _LendRequestCardState extends State<LendRequestCard> {
                   });
                 },
               ),
-              Spacer(), // Add a spacer to push the Send button to the right
+              Spacer(),
               IconButton(
                 icon: Icon(
                   Icons.send,
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  // Handle Send button press here
+                  _handleSendButtonPress();
                 },
               ),
             ],

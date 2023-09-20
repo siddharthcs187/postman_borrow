@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:postman/signinpage.dart';
-
 import 'Lend/lend_screen.dart';
 
 class AuthenticationWrapper extends StatelessWidget {
@@ -14,7 +12,7 @@ class AuthenticationWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasData) {
-          return LendScreen(); // Replace with your LoggedInWidget
+          return LendScreen();
         } else if (snapshot.hasError) {
           return const Center(child: Text('Something Went Wrong!'));
         } else {

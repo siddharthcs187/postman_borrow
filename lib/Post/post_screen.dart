@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:postman/Chat%20System/chat_list_page.dart';
 import 'package:postman/hamburger_menu.dart';
 import 'dart:io';
 
@@ -11,6 +12,7 @@ import 'package:postman/model_classes.dart';
 import '../Borrow/borrow_screen.dart';
 import '../Lend/lend_screen.dart';
 import '../bottom_nav_bar.dart';
+import 'custom_dropdown_button.dart';
 
 class PostScreen extends StatefulWidget {
   @override
@@ -68,7 +70,11 @@ class _PostScreenState extends State<PostScreen>
         }),
         actions: <Widget>[
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => ChatsList()),
+              );
+            },
             icon: SvgPicture.asset('assets/chats.svg'),
           ),
         ],
@@ -84,17 +90,17 @@ class _PostScreenState extends State<PostScreen>
             children: [
               Container(
                 child: TabBar(
+
                   labelColor: Colors.white,
                   indicator: BoxDecoration(
-                    color: Colors.transparent, // Color of the indicator
+                    color: Colors.transparent,
                   ),
                   indicatorColor: Colors.white,
                   unselectedLabelColor: Colors.white,
-                  // Change the color of the selected tab's text
                   controller: _tabController,
                   tabs: [
-                    Tab(text: "Borrow Request"),
-                    Tab(text: "Lend Request"),
+                    Tab(text: "लेन"),
+                    Tab(text: "देन"),
                   ],
                 ),
               ),
@@ -115,12 +121,10 @@ class _PostScreenState extends State<PostScreen>
         currentIndex: 1,
         onTap: (index) {
           if (index == 0) {
-            // Navigate to PostScreen
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (_) => LendScreen()),
             );
           } else if (index == 2) {
-            // Navigate to BorrowScreen
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (_) => BorrowScreen()),
             );
@@ -297,6 +301,13 @@ class _PostScreenState extends State<PostScreen>
 
   Widget _buildLendRequestTab() {
     String selectedRentOrSell = "Rent";
+    void updateSelectedRentOrSell(String newValue) {
+      setState(() {
+        print('inppost screen'+newValue);
+        selectedRentOrSell = newValue;
+        print('changed rent/sell ='+selectedRentOrSell);
+      });
+    }
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
@@ -351,24 +362,7 @@ class _PostScreenState extends State<PostScreen>
                 'Post the item for:',
                 style: GoogleFonts.poppins(color: Colors.white),
               ),
-              DropdownButton<String>(
-                value: selectedRentOrSell,
-                items: ["Rent", "Sale"]
-                    .map((value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(
-                            value,
-                            style: GoogleFonts.poppins(color: Colors.white),
-                          ),
-                        ))
-                    .toList(),
-                onChanged: (selectedOption) {
-                  setState(() {
-                    selectedRentOrSell =
-                        selectedOption ?? "Rent"; // Handle null value
-                  });
-                },
-              ),
+              CustomDropdownButton(onChanged: updateSelectedRentOrSell,),
             ],
           ),
           Expanded(
@@ -500,3 +494,5 @@ class _PostScreenState extends State<PostScreen>
     }
   }
 }
+
+

@@ -30,38 +30,57 @@ class _SignInPageState extends State<SignInPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 50,),
+                SizedBox(
+                  height: 50,
+                ),
                 Image.asset('assets/appstore.png'),
-                SizedBox(height: 30,),
-                 Text("BORROW",style: GoogleFonts.poppins(color: Colors.white, fontSize: 50),),
-                SizedBox(height: 100,),
-                Text("Log in to your Account",style: GoogleFonts.poppins(color: Colors.white, fontSize: 20),),
-                SizedBox(height: 30,),
+                SizedBox(
+                  height: 30,
+                ),
+                Text(
+                  "BORROW",
+                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 50),
+                ),
+                //font needs to be changed
+                SizedBox(
+                  height: 100,
+                ),
+                Text(
+                  "Log in to your Account",
+                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 20),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
                 Center(
                   child: SizedBox(
-
                     width: 250,
                     child: ElevatedButton(
-
-                        onPressed: () async{
+                        onPressed: () async {
                           final provider = Provider.of<GoogleSignInProvider>(
                               context,
                               listen: false);
                           await provider.GoogleLogin();
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (context) => LendScreen(), // Replace with your screen
+                          Navigator.of(context)
+                              .pushReplacement(MaterialPageRoute(
+                            builder: (context) =>
+                                LendScreen(), // Replace with your screen
                           ));
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: Color(0xFF0A2647), // Set the background color
+                          primary:
+                              Color(0xFF0A2647), // Set the background color
                         ),
                         child: Row(
-
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                          SvgPicture.asset('assets/googlw.svg'),
-                           Text("Login with google", style: GoogleFonts.poppins(color: Colors.white, fontSize: 15),),
-                        ])),
+                              SvgPicture.asset('assets/googlw.svg'),
+                              Text(
+                                "Login with google",
+                                style: GoogleFonts.poppins(
+                                    color: Colors.white, fontSize: 15),
+                              ),
+                            ])),
                   ),
                 ),
               ],

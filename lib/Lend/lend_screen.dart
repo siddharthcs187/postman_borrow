@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 
 import '../Borrow/borrow_request_card.dart';
 import '../Borrow/borrow_screen.dart';
+import '../Chat System/chat_list_page.dart';
+import '../Chat System/chat_page.dart';
 import '../Post/post_screen.dart';
 import '../model_classes.dart';
 
@@ -43,7 +45,9 @@ class _LendScreenState extends State<LendScreen> {
               }
             ),
             actions: <Widget>[
-              IconButton(onPressed: (){}, icon: SvgPicture.asset('assets/chats.svg')),
+              IconButton(onPressed: (){Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => ChatsList()),
+              );}, icon: SvgPicture.asset('assets/chats.svg')),
             ],
           ),
           body: Container(
@@ -70,6 +74,7 @@ class _LendScreenState extends State<LendScreen> {
                     title: doc['title'],
                     body: doc['body'],
                     profilePicUrl: doc['profilePicUrl'],
+                    userId: doc['userId'],
 
                   );
                 }).toList();
@@ -84,12 +89,10 @@ class _LendScreenState extends State<LendScreen> {
           ),
           bottomNavigationBar: BottomNavBar(currentIndex: 0, onTap: (index) {
             if (index == 1) {
-              // Navigate to PostScreen
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => PostScreen()),
               );
             } else if (index == 2) {
-              // Navigate to BorrowScreen
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => BorrowScreen()),
               );

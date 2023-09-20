@@ -7,6 +7,7 @@ import 'package:postman/Lend/lend_screen.dart';
 import 'package:postman/hamburger_menu.dart';
 import 'package:provider/provider.dart';
 
+import '../Chat System/chat_list_page.dart';
 import '../Lend/lend_request_card.dart';
 import '../Post/post_screen.dart';
 import '../bottom_nav_bar.dart';
@@ -30,20 +31,31 @@ class _BorrowScreenState extends State<BorrowScreen> {
         return Scaffold(
           drawer: HamMenu(),
           appBar: AppBar(
-            title:  Text("Borrow Requests",style: GoogleFonts.poppins(fontWeight: FontWeight.w400, color: Colors.white),),
-            backgroundColor: const Color(0xFF144272),
-            leading: Builder(
-              builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.white,),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                );
-              }
+            title: Text(
+              "Borrow Requests",
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w400, color: Colors.white),
             ),
+            backgroundColor: const Color(0xFF144272),
+            leading: Builder(builder: (context) {
+              return IconButton(
+                icon: const Icon(
+                  Icons.menu,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              );
+            }),
             actions: <Widget>[
-              IconButton(onPressed: (){}, icon: SvgPicture.asset('assets/chats.svg')),
+              IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => ChatsList()),
+                    );
+                  },
+                  icon: SvgPicture.asset('assets/chats.svg')),
             ],
           ),
           body: Container(
@@ -69,8 +81,9 @@ class _BorrowScreenState extends State<BorrowScreen> {
                     username: doc['username'],
                     title: doc['title'],
                     body: doc['body'],
-                    profilePicUrl: doc['profilePicUrl'], rentOrSell: doc['rentOrSell'],
-
+                    profilePicUrl: doc['profilePicUrl'],
+                    rentOrSell: doc['rentOrSell'],
+                    userId: doc['userId'],
                   );
                 }).toList();
                 return ListView.builder(
@@ -82,18 +95,21 @@ class _BorrowScreenState extends State<BorrowScreen> {
               },
             ),
           ),
-          bottomNavigationBar: BottomNavBar(currentIndex: 2, onTap: (index) {
-            if (index == 1) {
-              // Navigate to PostScreen
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => PostScreen()),
-              );
-            } else if (index == 0) {
-              // Navigate to BorrowScreen
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => LendScreen()),
-              );
-            } }),
+          bottomNavigationBar: BottomNavBar(
+              currentIndex: 2,
+              onTap: (index) {
+                if (index == 1) {
+                  // Navigate to PostScreen
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => PostScreen()),
+                  );
+                } else if (index == 0) {
+                  // Navigate to BorrowScreen
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => LendScreen()),
+                  );
+                }
+              }),
         );
       }),
     );
